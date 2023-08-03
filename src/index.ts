@@ -11,9 +11,8 @@ import { postForm } from 'dcl-catalyst-commons'
 import { Authenticator } from 'dcl-crypto'
 import { verifyMessage } from '@ethersproject/wallet'
 import { Wallet } from '@ethersproject/wallet'
-import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager'
 
-let wallet = new Wallet('0x0000000000000000000000000000000000000000000000000000000000000001')
+const wallet = new Wallet(process.env.PK)
 
 let db: { [address: string]: string[] } = {}
 
@@ -138,12 +137,6 @@ app.post('/content/entities', upload.any(), async (req, res) => {
 })
 
 async function main() {
-  const SMClient = new SecretsManagerClient({ region: 'us-east-1' })
-  const command = new GetSecretValueCommand({ SecretId: 'linker-server' })
-  const response = await SMClient.send(command)
-  const json = JSON.parse(response.SecretString!)
-  wallet = new Wallet(json.private_key)
-
   await updateDB()
 
   app.listen(PORT, () => {
@@ -155,7 +148,7 @@ void main()
 
 async function updateDB() {
   try {
-    const res = (await readFile("./authorizations.json")).toString()
+    const res = (await readFile('./authorizations.json')).toString()
     const json = JSON.parse(res)
     db = convertAuthorizationsToList(json as any)
   } catch (error) {}
