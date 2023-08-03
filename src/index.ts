@@ -155,14 +155,11 @@ void main()
 
 async function updateDB() {
   try {
-    const res = await fetch('https://decentraland.github.io/linker-server-authorizations/authorizations.json')
-    const json = await res.json()
+    const res = (await readFile("./authorizations.json")).toString()
+    const json = JSON.parse(res)
     db = convertAuthorizationsToList(json as any)
   } catch (error) {}
 }
-
-setInterval(updateDB, 10 * 60 * 1000)
-
 function validatePlot(plot: string): boolean {
   const split = plot.split(',')
   if (split.length != 2) return false
